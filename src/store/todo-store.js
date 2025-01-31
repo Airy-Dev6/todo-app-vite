@@ -21,12 +21,17 @@ const initStore = () => {
 
 const loadStore = () => {
   console.log(localStorage.getItem("state"));
+  if (!localStorage.getItem("state")) return;
+
+  const { todos, filter } = JSON.parse(localStorage.getItem("state"));
+  state.todos = todos;
+  state.filter = filter;
 };
 
 const saveStateToLocalStorage = () => {
   console.log(JSON.stringify(state));
 
-  localStorage.setItem(state, JSON.stringify(state));
+  localStorage.setItem("state", JSON.stringify(state));
 };
 
 const getTodos = (filter = Filters.All) => {
