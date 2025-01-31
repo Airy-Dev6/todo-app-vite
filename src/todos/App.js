@@ -1,4 +1,4 @@
-import todoStore from "../store/todo-store";
+import todoStore, { Filters } from "../store/todo-store";
 import html from "./app.html?raw";
 import { renderTodos } from "./useCases";
 
@@ -6,11 +6,19 @@ const ElementsIds = {
   TodoList: ".todo-list",
   NewTodoInput: "#new-todo-input",
   BtnDelet: ".destroy",
+  deleteCompleted: ".clear-completed",
+  TodoFilters: ".filtro",
+  FilterSelected: "selected",
+  FiltersD: ".todo-count",
 };
 
 export const App = (elementID) => {
   const dRenderTodos = () => {
     const todos = todoStore.getTodos(todoStore.getCurrentFilter());
+    let counterP = todos.filter((element) => element.done === false).length;
+    const filterP = document.querySelector(ElementsIds.FiltersD);
+    filterP.innerHTML = `${counterP} Pediente(s)`;
+
     renderTodos(ElementsIds.TodoList, todos);
   };
 
@@ -27,6 +35,10 @@ export const App = (elementID) => {
 
   const todoListUl = document.querySelector(ElementsIds.TodoList);
   const deleteById = document.querySelector(ElementsIds.BtnDelet);
+  const deletTodoCompleted = document.querySelector(
+    ElementsIds.deleteCompleted
+  );
+  const filterUl = document.querySelectorAll(ElementsIds.TodoFilters);
 
   //  Listeners
 
@@ -65,5 +77,45 @@ export const App = (elementID) => {
 
     todoStore.deleteTodo(idTodoDelete);
     dRenderTodos();
+  });
+
+  deletTodoCompleted.addEventListener("click", (event) => {
+    console.log(event.target);
+    todoStore.deleteComplete();
+    dRenderTodos();
+  });
+
+  filterUl.forEach((element) => {
+    console.log(element.text);
+    console.log(element.getAttribute("class"));
+    console.log();
+    element.addEventListener("click", (event) => {
+      let textFilter = event.target.text;
+      // element.classList.remove(ElementsIds.FilterSelected);
+      filterUl.forEach((item) => {
+        item.classList.remove(ElementsIds.FilterSelected);
+      });
+
+      switch (textFilter) {
+        case "Todos":
+          event.target.classList.add(ElementsIds.FilterSelected);
+          todoStore.setSelecterFilter(Filters.All);
+          dRenderTodos();
+          break;
+        case "Pendientes":
+          event.target.classList.add(ElementsIds.FilterSelected);
+          todoStore.setSelecterFilter(Filters.Pending);
+          dRenderTodos();
+          break;
+        case "Completados":
+          event.target.classList.add(ElementsIds.FilterSelected);
+          todoStore.setSelecterFilter(Filters.Completed);
+          dRenderTodos();
+          break;
+
+        default:
+          break;
+      }
+    });
   });
 };
